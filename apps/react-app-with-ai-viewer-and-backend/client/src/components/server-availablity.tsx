@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { baasApiKeyAtom, serverAvailabilityAtom } from '@/store';
 import { useAtom } from 'jotai';
+import { apiUrl } from '@/lib/api-url';
 
 function ServerAvailablity() {
   const [serverAvailability, setServerAvailablity] = useAtom(serverAvailabilityAtom);
@@ -11,7 +12,7 @@ function ServerAvailablity() {
 
   const checkServerAvailability = async () => {
     try {
-      const response = await axios.get('/api/health');
+      const response = await axios.get(apiUrl('/api/health'));
       if (response.status === 200) {
         setServerAvailablity('server');
       } else {

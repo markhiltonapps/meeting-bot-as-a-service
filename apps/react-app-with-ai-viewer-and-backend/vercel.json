@@ -1,8 +1,17 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run shared:build && npm run frontend:build",
+  "outputDirectory": "client/dist",
+  "framework": null,
   "rewrites": [
-    { "source": "/meetingbaas-api/:match*", "destination": "https://api.meetingbaas.com/:match*" },
-    { "source": "/s3/:match*", "destination": "https://s3.eu-west-3.amazonaws.com/bots-videos/:match*" },
-    { "source": "/api/:match*", "destination": "https://api.meetingbaas.com/404" },
-    {"source": "/(.*)", "destination": "/"}
+    {
+      "source": "/meetingbaas-api/:path*",
+      "destination": "https://api.meetingbaas.com/:path*"
+    },
+    {
+      "source": "/s3/:path*",
+      "destination": "https://s3.eu-west-3.amazonaws.com/bots-videos/:path*"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

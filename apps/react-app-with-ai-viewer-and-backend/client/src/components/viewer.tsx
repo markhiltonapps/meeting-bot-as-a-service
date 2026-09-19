@@ -21,6 +21,7 @@ import { useAtom } from 'jotai';
 
 import OpenAI from 'openai';
 import { toast } from 'sonner';
+import { apiUrl } from '@/lib/api-url';
 
 type ViewerProps = {
   isLoading: boolean;
@@ -89,7 +90,7 @@ export function Viewer({ isLoading, meetingData }: ViewerProps) {
         };
       };
       if (serverAvailability === 'server') {
-        res = await axios.post('/api/chat', {
+        res = await axios.post(apiUrl('/api/chat'), {
           messages: messagesList,
         });
       } else {
