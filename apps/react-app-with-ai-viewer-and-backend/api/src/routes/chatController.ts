@@ -1,14 +1,28 @@
 import { Request, Response } from "express";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  baseURL: process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1",
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// The OpenAI constructor throws when no key is configured, so build the client
+// per request instead of at import time — an unconfigured key must degrade to a
+// 503 on /api/chat, not stop the whole server from booting.
+function getClient(): OpenAI | null {
+  if (!process.env.OPENAI_API_KEY) return null;
+
+  return new OpenAI({
+    baseURL: process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1",
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 export const chat = async (req: Request, res: Response) => {
   const { messages } = req.body;
   const systemPrompt =  "You are a helpful assistant named AI Meeting Bot. You will be given a context of a meeting and some meeting notes, you will answer questions based on the context."
+
+  const openai = getClient();
+  if (!openai) {
+    return res
+      .status(503)
+      .json({ error: "OPENAI_API_KEY is not set on the server." });
+  }
 
   try {
     const completion = await openai.chat.completions.create({
