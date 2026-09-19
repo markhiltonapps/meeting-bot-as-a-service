@@ -1,8 +1,6 @@
 export function checkEnvironmentVariables(): string[] {
   const requiredEnvVars = [
-    "OPENAI_BASE_URL",
-    "OPENAI_API_KEY",
-    "OPENAI_MODEL",
+    "ANTHROPIC_API_KEY",
     "NOTION_API_KEY",
     "DATABASE_ID",
     "BASS_API_KEY",
@@ -19,7 +17,7 @@ export function checkEnvironmentVariables(): string[] {
     missingVars.forEach((varName) => console.warn(`\t‼️ - ${varName}`));
     console.warn(
       "Please set these variables in your .env file or environment.",
-      "\n\t- OPENAI_BASE_URL defaults to https://api.openai.com/v1",
+      "\n\t- ANTHROPIC_MODEL defaults to claude-opus-5.",
       "\n\t- BASS_API_KEY can be set manually in the form.",
     );
   }

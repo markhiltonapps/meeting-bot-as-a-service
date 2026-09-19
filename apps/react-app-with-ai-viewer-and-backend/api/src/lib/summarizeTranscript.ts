@@ -1,4 +1,4 @@
-import { OpenAI } from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 
 interface TranscriptEntry {
   speaker: string;
@@ -13,15 +13,15 @@ const SYSTEM_PROMPT_DESCRIPTION = `Given a detailed transcript of a meeting, gen
 
 export async function summarizeTranscript(transcript: TranscriptEntry[]) {
   try {
-    if (process.env.OPENAI_API_KEY) {
-      const openai = new OpenAI({
-        baseURL: process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1",
-        apiKey: process.env.OPENAI_API_KEY,
-      });
-      const completion = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+    if (process.env.ANTHROPIC_API_KEY) {
+      // new Anthropic() reads ANTHROPIC_API_KEY from the environment. Build it
+      // here rather than at import time so the server still boots unconfigured.
+      const anthropic = new Anthropic();
+      const message = await anthropic.messages.create({
+        model: process.env.ANTHROPIC_MODEL ?? "claude-opus-5",
+        max_tokens: 16000,
+        system: SYSTEM_PROMPT_DESCRIPTION,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT_DESCRIPTION },
           {
             role: "user",
             content: transcript
@@ -36,9 +36,13 @@ export async function summarizeTranscript(transcript: TranscriptEntry[]) {
         ],
       });
 
-      return completion.choices[0].message.content;
+      // content is a ContentBlock[] discriminated union — narrow to text blocks.
+      return message.content
+        .filter((block): block is Anthropic.TextBlock => block.type === "text")
+        .map((block) => block.text)
+        .join("");
     } else {
-      return "OpenAI key is not set in Node JS.";
+      return "Anthropic key is not set in Node JS.";
     }
   } catch (error) {
     console.error("Error summarizing transcript:", error);

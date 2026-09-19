@@ -36,9 +36,8 @@ on boot by `api/src/db/migrate.ts`. They can also be run on their own with
 | `DATABASE_SSL` | no | `"true"` when connecting over a public TLS proxy |
 | `PORT` / `HOST` | no | Default `3080` / `0.0.0.0` |
 | `BASS_API_KEY` | for server-side bot invites | MeetingBaas API key |
-| `OPENAI_API_KEY` | for summaries and `/api/chat` | Without it `/api/chat` answers 503 |
-| `OPENAI_MODEL` | no | Defaults to `gpt-4o-mini` |
-| `OPENAI_BASE_URL` | no | Defaults to `https://api.openai.com/v1` |
+| `ANTHROPIC_API_KEY` | for summaries and `/api/chat` | Without it `/api/chat` answers 503 |
+| `ANTHROPIC_MODEL` | no | Defaults to `claude-opus-5` |
 | `NOTION_API_KEY` | for the Notion sink | Webhook summaries are skipped without it |
 | `DATABASE_ID` | for the Notion sink | Notion database id, not Postgres |
 
