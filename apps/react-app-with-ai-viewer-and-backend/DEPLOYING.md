@@ -1,11 +1,16 @@
 # Deploying the web app
 
-Two pieces, deployed separately:
+## What is deployed
 
 | Piece | Where | What it is |
 | --- | --- | --- |
-| `api` + Postgres | Railway | Express API (`api/`), `packages/shared`, drizzle migrations |
-| `client` | Vercel | Vite/React SPA (`client/`) |
+| `api` + `client` + Postgres | Railway | Express API, the built SPA it serves, drizzle migrations |
+| `client` | Vercel | Same SPA, hosted separately, pointed at the Railway API |
+
+The Railway image builds and serves the client itself, so one origin is a
+complete deployment. The Vercel project is the alternative front door: it
+serves the same SPA and reaches the API cross-origin via `VITE_API_BASE_URL`
+(the API sends permissive CORS, so both work at once).
 
 The Tauri desktop apps (`apps/rust-*`) and `apps/whisper_local` are not part of
 this path. Transcription is done by MeetingBaas (Gladia) on their side, so no
@@ -23,8 +28,8 @@ service, which is what the deployed service has):
 | Start command | `node api/dist/src/index.js` |
 | Healthcheck path | `/api/health` |
 
-`Dockerfile` builds `packages/shared` and the `api` workspace only; the client
-is never built in the image. Migrations in `api/drizzle/migrations` are applied
+`Dockerfile` builds `packages/shared`, the `api` workspace and the client, and
+copies `client/dist` into the runtime image. Migrations in `api/drizzle/migrations` are applied
 on boot by `api/src/db/migrate.ts`. They can also be run on their own with
 `npm run db:deploy --workspace api` against a built `api/dist`.
 
@@ -54,6 +59,10 @@ The server boots with all of the optional ones unset; it logs which are missing.
 | Name | Notes |
 | --- | --- |
 | `VITE_API_BASE_URL` | Origin of the Railway API, no trailing slash. Leave empty to keep calls same-origin. |
+
+If the Vercel project is not linked to the repository, Vercel will not build
+on push. Connect it under the project's Settings, Git; the API token used by
+automation cannot create deployments for this project.
 
 `vercel.json` also proxies `/meetingbaas-api/*` and `/s3/*` the way the Vite dev
 server does, so the browser-only (IndexedDB) mode works on Vercel without the
