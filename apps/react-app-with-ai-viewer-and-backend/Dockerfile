@@ -1,8 +1,9 @@
 # Express API image for the MeetingBaas viewer.
 #
 # Build context is this directory (apps/react-app-with-ai-viewer-and-backend).
-# The client is deployed separately (Vercel), so only the shared package and the
-# api workspace are built here.
+# Builds the shared package, the api workspace and the client. Express serves
+# client/dist when it is present, so this image is a complete single-origin
+# deployment; a separately hosted client (Vercel) can point at it instead.
 
 FROM node:22-slim AS builder
 WORKDIR /app
@@ -16,7 +17,7 @@ RUN npm install --no-audit --no-fund
 
 COPY . .
 
-RUN npm run shared:build && npm run backend:build
+RUN npm run build
 
 FROM node:22-slim AS runner
 WORKDIR /app
@@ -32,6 +33,7 @@ COPY --from=builder /app/api/node_modules ./api/node_modules
 COPY --from=builder /app/api/dist ./api/dist
 COPY --from=builder /app/api/drizzle ./api/drizzle
 COPY --from=builder /app/packages/shared ./packages/shared
+COPY --from=builder /app/client/dist ./client/dist
 
 EXPOSE 3080
 
